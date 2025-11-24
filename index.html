@@ -244,61 +244,44 @@
     </div>
 
     <div class="results-card" id="results-area" style="display:none;">
-        <h2>Quiz Terminé !</h2>
-        
-        <p style="font-size: 1.2em; color: var(--primary); font-weight: bold;">
-            Pour voir les résultats, renseignez votre pseudo :
-        </p>
+    <h2>Quiz Terminé !</h2>
+    
+    <p style="font-size: 1.2em; color: var(--primary); font-weight: bold;">
+        Pour voir les résultats, renseignez votre pseudo :
+    </p>
 
-        <input type="text" id="pseudo-input" placeholder="Votre Pseudo (requis)" 
-            style="padding: 10px; width: 80%; margin-top: 15px; border: 1px solid #ccc; border-radius: 5px;"
-            oninput="handlePseudoInput(this.value)"> 
+    <input type="text" id="pseudo-input" placeholder="Votre Pseudo (requis)" 
+        style="padding: 10px; width: 80%; margin-top: 15px; border: 1px solid #ccc; border-radius: 5px;"
+        oninput="handlePseudoInput(this.value)"> 
+    
+    <button class="action-btn" id="send-results-btn" style="display:none;" onclick="sendResultFromButton()">
+        Enregistrer mon résultat
+    </button>
+    
+    <div id="final-results-display" style="display:none;">
         
-        <button class="action-btn" id="send-results-btn" style="display:none;" onclick="sendResultFromButton()">
-            Enregistrer mon résultat
+        <p id="raw-score-display" style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px; color: var(--dark);"></p>
+        <p id="time-taken-display" style="font-weight: bold; margin-bottom: 20px; color: var(--barrel-brown);"></p>
+        
+        <p>Votre **Index de Performance** est de :</p>
+        <div class="final-score"><span id="final-score-val">0%</span></div>
+
+        <p id="final-message"></p>
+        
+        <p id="send-status" style="font-weight: bold; color: var(--correct); margin-top: 10px;"></p>
+        
+        <button class="action-btn" style="background-color: #34495e;" onclick="location.reload()">Recommencer</button>
+    
+        <button class="action-btn" 
+            id="rhum-quiz-link" 
+            style="background-color: #d35400; 
+                   margin-top: 10px;
+                   display: none;" 
+            onclick="window.location.href='https://les-editions-spiritueuses.github.io/quiz-rhum'">
+            Testez vos connaissances sur le Rhum 🧉
         </button>
-        
-        <div id="final-results-display" style="display:none;">
-            
-            <p id="raw-score-display" style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px; color: var(--dark);"></p>
-
-            <p id="time-taken-display" style="font-weight: bold; margin-bottom: 20px; color: var(--barrel-brown);"></p>
-            
-            <p>Votre **Index de Performance** est de :</p>
-            <div class="final-score"><span id="final-score-val">0%</span></div>
-
-            <p id="final-message"></p>
-            
-            <p id="send-status" style="font-weight: bold; color: var(--correct); margin-top: 10px;"></p>
-        </div>
-
-        <button class="action-btn" id="send-results-btn" style="display:none;" onclick="sendResultFromButton()">
-            Enregistrer mon résultat
-        </button>
-        
-        <div id="final-results-display" style="display:none;">
-            
-            <p id="raw-score-display" style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px; color: var(--dark);"></p>
-            <p id="time-taken-display" style="font-weight: bold; margin-bottom: 20px; color: var(--barrel-brown);"></p>
-            <p>Votre **Index de Performance** est de :</p>
-            <div class="final-score"><span id="final-score-val">0%</span></div>
-            <p id="final-message"></p>
-            <p id="send-status" style="font-weight: bold; color: var(--correct); margin-top: 10px;"></p>
-            
-            <button class="action-btn" style="background-color: #34495e;" onclick="location.reload()">Recommencer</button>
-        
-            <button class="action-btn" 
-                id="rhum-quiz-link" 
-                style="background-color: #d35400; 
-                       margin-top: 10px;
-                       display: none;" 
-                onclick="window.location.href='https://les-editions-spiritueuses.github.io/quiz-rhum'">
-                Testez vos connaissances sur le Rhum 🧉
-            </button>
-        </div>
-        
-        </div>
     </div>
+</div>
 
 
 <script>
@@ -704,6 +687,7 @@ const DISTILLERY_IMAGE_URL = "https://raw.githubusercontent.com/Les-Editions-Spi
 
 </body>
 </html>
+
 
 
 
