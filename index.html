@@ -275,8 +275,8 @@
         <button class="action-btn" 
             id="rhum-quiz-link" 
             style="background-color: #d35400; 
-                   margin-top: 10px;
-                   display: none;" 
+                    margin-top: 10px;
+                    display: none;" 
             onclick="window.location.href='https://les-editions-spiritueuses.github.io/quiz-rhum'">
             Testez vos connaissances sur le Rhum 🧉
         </button>
@@ -286,9 +286,8 @@
 
 <script>
     // -------------------------------------------------------------------
-    // URL BRUTE (RAW) DE L'IMAGE GITHUB (À CHANGER pour une image whisky)
+    // URL BRUTE (RAW) DE L'IMAGE GITHUB (À VÉRIFIER !)
     // -------------------------------------------------------------------
-    // DANS VOTRE FICHIER index.html
 const DISTILLERY_IMAGE_URL = "https://raw.githubusercontent.com/Les-Editions-Spiritueuses/quiz-whisky/main/Distillerie-whisky.jpg"; 
 
     // VOTRE URL DE DEPLOIEMENT GOOGLE APPS SCRIPT
@@ -627,26 +626,14 @@ const DISTILLERY_IMAGE_URL = "https://raw.githubusercontent.com/Les-Editions-Spi
                 resultSent = true;
                 document.getElementById('send-status').textContent = "✅ Résultat enregistré !";
                 sendResultsBtn.disabled = true; // Désactiver le bouton après l'envoi
-            
-                // DANS VOTRE FONCTION sendResult(pseudo)
-// ...
-                // Si le fetch réussit sans erreur réseau (même si la réponse est opaque), on considère que l'envoi a été tenté.
-                success = true;
-                resultSent = true;
-                document.getElementById('send-status').textContent = "✅ Résultat enregistré !";
-                sendResultsBtn.disabled = true; // Désactiver le bouton après l'envoi
                 
-                // >>> AJOUTEZ CETTE LIGNE <<<
+                // Correction pour afficher le bouton Rhum (fix du problème précédent)
                 document.getElementById('rhum-quiz-link').style.display = 'block';
-
-            } catch (error) {
-// ...
 
             } catch (error) {
                 attempt++;
                 if (attempt < maxRetries) {
                     const waitTime = Math.pow(2, attempt) * 1000; 
-                    // Pas de log d'erreur ici pour l'exponential backoff (consigne)
                     await delay(waitTime);
                 } else {
                     console.error("Erreur lors de l'envoi des données à Google Sheets (après plusieurs tentatives):", error);
@@ -695,15 +682,7 @@ const DISTILLERY_IMAGE_URL = "https://raw.githubusercontent.com/Les-Editions-Spi
         }
     }
     
-    // Charger la première question au lancement du quiz
-    // loadQuestion(); // Retiré, car le quiz démarre via le bouton "Commencer"
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
