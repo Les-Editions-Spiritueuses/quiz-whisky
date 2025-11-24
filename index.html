@@ -21,6 +21,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--dark);
             margin: 0;
+            /* Permet de centrer correctement le conteneur */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -37,6 +38,7 @@
             overflow: hidden;
             padding: 30px;
             transition: all 0.3s ease-in-out;
+            box-sizing: border-box; /* Assure que le padding n'élargit pas le conteneur */
         }
 
         /* 2. Styles de la Page d'Accueil */
@@ -46,7 +48,7 @@
 
         .welcome-title {
             color: var(--primary);
-            font-size: 2.5em;
+            font-size: 2em; /* CORRECTION: Réduit pour mobile (était 2.5em) */
             margin-bottom: 10px;
             border-bottom: 3px solid var(--primary);
             display: inline-block;
@@ -64,9 +66,19 @@
         }
 
         .welcome-description {
-            font-size: 1.1em;
+            font-size: 1em; /* CORRECTION: Réduit pour mobile (était 1.1em) */
             margin-bottom: 30px;
             line-height: 1.6;
+        }
+        
+        /* NOUVEAU STYLE: Boîte de règles (Nettoyage du style inline) */
+        .rule-box {
+            font-weight: bold;
+            color: var(--primary);
+            border: 1px dashed var(--primary);
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 0.9em; /* Réduit légèrement la taille du texte de la règle */
         }
 
         /* Styles du Quiz */
@@ -199,6 +211,25 @@
         #send-results-btn:hover {
             background-color: #229954;
         }
+
+        /* NOUVEAU STYLE: Pseudo Input (Correction du zoom mobile) */
+        #pseudo-input {
+            padding: 10px;
+            width: 80%;
+            margin-top: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px !important; /* CORRECTION: Force 16px pour éviter le zoom mobile */
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        /* MEDIA QUERY pour affiner l'expérience mobile si nécessaire (pour être sûr) */
+        @media (max-width: 480px) {
+            .quiz-container {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -213,9 +244,9 @@
         <p class="welcome-description">
             Avec Les Editions Spiritueuses, testez vos connaissances sur le whisky ! Plongez dans son univers fascinant et découvrez si vous êtes un véritable connaisseur de ce spiritueux légendaire !
         </p>
-        <p style="font-weight: bold; color: #944d18; border: 1px dashed #944d18; padding: 10px; margin-top: 20px;">
-        ⚠️ RÈGLE DE SCORING : Le score final est pondéré par le temps de réponse. Le temps cible est de **2 minutes (120 secondes)**. Si vous dépassez 2 minutes, votre Index de Performance sera légèrement pénalisé.
-    </p>
+        <p class="rule-box">
+            ⚠️ RÈGLE DE SCORING : Le score final est pondéré par le temps de réponse. Le temps cible est de **2 minutes (120 secondes)**. Si vous dépassez 2 minutes, votre Index de Performance sera légèrement pénalisé.
+        </p>
         <button class="action-btn" onclick="startQuiz()">Commencer le Quiz</button>
     </div>
 
@@ -251,7 +282,6 @@
     </p>
 
     <input type="text" id="pseudo-input" placeholder="Votre Pseudo (requis)" 
-        style="padding: 10px; width: 80%; margin-top: 15px; border: 1px solid #ccc; border-radius: 5px;"
         oninput="handlePseudoInput(this.value)"> 
     
     <button class="action-btn" id="send-results-btn" style="display:none;" onclick="sendResultFromButton()">
