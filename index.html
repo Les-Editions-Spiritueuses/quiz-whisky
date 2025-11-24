@@ -627,6 +627,20 @@ const DISTILLERY_IMAGE_URL = "https://raw.githubusercontent.com/Les-Editions-Spi
                 resultSent = true;
                 document.getElementById('send-status').textContent = "✅ Résultat enregistré !";
                 sendResultsBtn.disabled = true; // Désactiver le bouton après l'envoi
+            
+                // DANS VOTRE FONCTION sendResult(pseudo)
+// ...
+                // Si le fetch réussit sans erreur réseau (même si la réponse est opaque), on considère que l'envoi a été tenté.
+                success = true;
+                resultSent = true;
+                document.getElementById('send-status').textContent = "✅ Résultat enregistré !";
+                sendResultsBtn.disabled = true; // Désactiver le bouton après l'envoi
+                
+                // >>> AJOUTEZ CETTE LIGNE <<<
+                document.getElementById('rhum-quiz-link').style.display = 'block';
+
+            } catch (error) {
+// ...
 
             } catch (error) {
                 attempt++;
@@ -687,6 +701,7 @@ const DISTILLERY_IMAGE_URL = "https://raw.githubusercontent.com/Les-Editions-Spi
 
 </body>
 </html>
+
 
 
 
