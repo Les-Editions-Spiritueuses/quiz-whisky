@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Whisky - Connaisseur</title>
+    <style>
+        /* Couleurs et Thème Whisky */
+        :root {
+            --primary: #944d18; /* Whisky Ambré/Brun */
+            --secondary: #fefcf5; /* Fond Clair */
+            --dark: #2c3e50;
+            --correct: #27ae60;
+            --wrong: #c0392b;
+            --barrel-brown: #5c3b1c; /* Fût plus foncé */
+            --barrel-highlight: #7a4f29;
+        }
+
+        /* 1. Visuel Global */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f6f7;
+        }
+
+        .quiz-container {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+            padding: 30px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* 2. Styles de la Page d'Accueil */
+        #welcome-area {
+            text-align: center;
+        }
+
+        .welcome-title {
+            color: var(--primary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        /* Style pour l'image de distillerie */
+        .distillery-image {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-description {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* Styles du Quiz */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+
+        .header h1 { margin: 0; color: var(--dark); font-size: 1.5em;}
+        
+        /* Conteneur de la progression (Question # et Chrono) */
+        .progress-bar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 1em; 
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .question-progress-live { color: var(--primary); }
+        .chrono-live { color: var(--dark); }
+
+
+        .question-card { margin-bottom: 20px; }
+        
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .question-text::before {
+            content: "🥃 ";
+            font-size: 1.2em;
+            margin-right: 5px;
+            color: var(--primary);
+        }
+        
+        .question-text {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            padding-left: 5px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #bdc3c7;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background-color: var(--secondary);
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf;
+            border-color: var(--correct);
+            color: var(--correct);
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: var(--wrong);
+            color: var(--wrong);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #ecf0f1;
+            display: none;
+        }
+
+        /* Style pour les boutons généraux */
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover { background-color: #7a4f29; }
+        
+        .results-card {
+            text-align: center;
+        }
+        
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        /* Style pour le bouton d'envoi des résultats */
+        #send-results-btn {
+            margin-top: 15px;
+            background-color: var(--correct);
+            border-color: var(--correct);
+        }
+        #send-results-btn:hover {
+            background-color: #229954;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    
+    <div id="welcome-area">
+        <h1 class="welcome-title">Quiz Whisky</h1>
+        
+        <img id="distillery-image-placeholder" class="distillery-image" alt="Illustration de distillerie de whisky">
+        
+        <p class="welcome-description">
+            Avec Les Editions Spiritueuses, testez vos connaissances sur le whisky ! Plongez dans son univers fascinant et découvrez si vous êtes un véritable connaisseur de ce spiritueux légendaire !
+        </p>
+        <p style="font-weight: bold; color: #944d18; border: 1px dashed #944d18; padding: 10px; margin-top: 20px;">
+        ⚠️ RÈGLE DE SCORING : Le score final est pondéré par le temps de réponse. Le temps cible est de **2 minutes (120 secondes)**. Si vous dépassez 2 minutes, votre Index de Performance sera légèrement pénalisé.
+    </p>
+        <button class="action-btn" onclick="startQuiz()">Commencer le Quiz</button>
+    </div>
+
+    <div id="quiz-area" style="display:none;">
+        <div class="header">
+            <h1>Connaisseur du Whisky</h1>
+            
+            <div class="progress-bar-container">
+                <span id="question-progress-live" class="question-progress-live">Question 0 / 15</span> 
+                <span id="chrono-live" class="chrono-live">00:00</span>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-meta">
+                <span id="q-difficulty">Difficulté</span>
+                <span id="q-points">Points</span>
+            </div>
+            <div class="question-text" id="question-text"></div>
+            <div class="options-grid" id="options-container">
+                </div>
+        </div>
+
+        <div class="feedback" id="feedback-area"></div>
+        <button class="action-btn" id="next-btn" style="display:none" onclick="nextQuestion()">Question Suivante</button>
+    </div>
+
+    <div class="results-card" id="results-area" style="display:none;">
+        <h2>Quiz Terminé !</h2>
+        
+        <p style="font-size: 1.2em; color: var(--primary); font-weight: bold;">
+            Pour voir les résultats, renseignez votre pseudo :
+        </p>
+
+        <input type="text" id="pseudo-input" placeholder="Votre Pseudo (requis)" 
+            style="padding: 10px; width: 80%; margin-top: 15px; border: 1px solid #ccc; border-radius: 5px;"
+            oninput="handlePseudoInput(this.value)"> 
+        
+        <button class="action-btn" id="send-results-btn" style="display:none;" onclick="sendResultFromButton()">
+            Enregistrer mon résultat
+        </button>
+        
+        <div id="final-results-display" style="display:none;">
+            
+            <p id="raw-score-display" style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px; color: var(--dark);"></p>
+
+            <p id="time-taken-display" style="font-weight: bold; margin-bottom: 20px; color: var(--barrel-brown);"></p>
+            
+            <p>Votre **Index de Performance** est de :</p>
+            <div class="final-score"><span id="final-score-val">0%</span></div>
+
+            <p id="final-message"></p>
+            
+            <p id="send-status" style="font-weight: bold; color: var(--correct); margin-top: 10px;"></p>
+        </div>
+
+        <button class="action-btn" style="background-color: #34495e;" onclick="location.reload()">Recommencer</button>
+    </div>
+
+
+<script>
+    // -------------------------------------------------------------------
+    // URL BRUTE (RAW) DE L'IMAGE GITHUB (À CHANGER pour une image whisky)
+    // -------------------------------------------------------------------
+    // REMPLACEZ-MOI par l'URL d'une image de distillerie/bouteille de whisky sur votre repo GitHub !
+    const DISTILLERY_IMAGE_URL = "https://placehold.co/600x250/944d18/ffffff?text=Image+Distillerie+Whisky"; 
+
+    // VOTRE URL DE DEPLOIEMENT GOOGLE APPS SCRIPT
+    // REMPLACER cette chaîne par votre propre URL de déploiement Google Apps Script !
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyKCoo68vq5DbX4v2vlSLGGkKigeDWeoEF3dMOxwP7tllx5MPADuSzvLxpOeMGM1PNB4Q/exec";
+    
+    // NOM DE L'ONGLET GOOGLE SHEET CIBLE - TRÈS IMPORTANT !
+    const TARGET_SHEET_NAME = "Resultats Quiz 2"; 
+    // VEUILLEZ VÉRIFIER que votre Google Apps Script est adapté pour utiliser cette variable.
+
+    let resultSent = false; 
+    let chronoInterval; 
+    
+    // Données du Quiz Whisky (Adaptées de votre fichier DOCX)
+    const quizData = [
+        {
+            q: "Quelle matière première est exclusivement utilisée dans la production d’un whisky \"single malt\" ?",
+            options: ["Un mélange d’orge maltée et non maltée", "Uniquement de l’orge maltée provenant d’une seule distillerie", "Différentes céréales distillées séparément puis assemblées"],
+            correct: 1, // Uniquement de l’orge maltée provenant d’une seule distillerie
+            points: 1,
+            explanation: "Le terme 'single malt' implique une base 100 % orge maltée, issue d’une seule distillerie."
+        },
+        {
+            q: "Qu’est-ce qui caractérise principalement un whisky \"Rye\" par rapport à un Bourbon ?",
+            options: ["Une distillation en colonne à plus forte température", "Une proportion majoritaire de seigle dans la composition", "Un vieillissement exclusivement en fûts de chêne usagés"],
+            correct: 1, // Une proportion majoritaire de seigle
+            points: 2,
+            explanation: "Le Rye whiskey est défini par l'utilisation d'au moins 51 % de seigle."
+        },
+        {
+            q: "Quel est l’impact principal de la triple distillation sur le profil aromatique du whiskey irlandais ?",
+            options: ["Elle épure davantage l’alcool pour un rendu plus fluide et aérien", "Elle renforce la présence d’arômes de fermentation", "Elle permet un taux d’alcool plus élevé avant dilution"],
+            correct: 0, // Plus fluide et aérien
+            points: 3,
+            explanation: "La triple distillation donne des whiskeys plus doux et ronds, caractéristiques de l’Irlande."
+        },
+        {
+            q: "Quelle est la fonction réelle de la tourbe dans la fabrication de certains whiskies ?",
+            options: ["Elle sert de combustible au séchage du malt, en transmettant des arômes fumés", "Elle est utilisée pour aromatiser les fûts après distillation", "Elle est ajoutée en fermentation pour favoriser la levure"],
+            correct: 0, // Séchage du malt avec arômes fumés
+            points: 2,
+            explanation: "La tourbe est brûlée lors du séchage du malt, infusant des composés phénoliques au grain."
+        },
+        {
+            q: "Quelle affirmation décrit le mieux l'effet du climat tropical sur le vieillissement du whisky ?",
+            options: ["Il permet une oxydation lente qui préserve la complexité", "Il ralentit le développement aromatique mais augmente la couleur", "Il accélère les échanges bois/alcool et accentue la part des anges"],
+            correct: 2, // Accélère les échanges
+            points: 3,
+            explanation: "Un climat chaud comme à Taïwan ou en Inde augmente l’intensité et la vitesse de maturation."
+        },
+        {
+            q: "Quelle est la conséquence sensorielle la plus typique du vieillissement en fût de sherry ?",
+            options: ["Une structure tannique dominante et sèche", "Une richesse aromatique autour des fruits secs, noix et épices douces", "Un profil exclusivement boisé et minéral"],
+            correct: 1, // Fruits secs, noix et épices douces
+            points: 2,
+            explanation: "Le sherry influence les whiskies par des arômes chaleureux et fruités, parfois oxydatifs."
+        },
+        {
+            q: "Le \"Single Pot Still\", emblématique de l’Irlande, se distingue principalement par :",
+            options: ["L’usage d’un pot still double compartimenté", "La présence d’orge non maltée aux côtés de l’orge maltée", "Un vieillissement systématique en fût de cidre"],
+            correct: 1, // Orge non maltée
+            points: 2,
+            explanation: "C’est l’ajout d’orge non maltée qui donne au Single Pot Still son profil unique."
+        },
+        {
+            q: "Quelle est la spécificité du bois de Mizunara, utilisé dans certains whiskies japonais ?",
+            options: ["Il apporte des arômes rares comme le santal, l’encens et la noix de coco", "Il concentre davantage les notes fumées par son grain serré", "Il favorise l’oxydation grâce à sa porosité unique"],
+            correct: 0, // Santal, encens et noix de coco
+            points: 3,
+            explanation: "Le Mizunara est apprécié pour ses arômes subtils et complexes, et sa rareté."
+        },
+        {
+            q: "Quelle est la durée minimale de vieillissement légal pour qu’un spiritueux soit considéré comme un whisky ?",
+            options: ["2 ans, uniquement si élevé sous bois", "4 ans, sauf pour les whiskies de grain", "3 ans, dans des fûts de bois d’un volume défini"],
+            correct: 2, // 3 ans
+            points: 1,
+            explanation: "Selon la réglementation européenne (et dans le guide), le whisky doit vieillir au moins 3 ans."
+        },
+        {
+            q: "Quel facteur régional a l’impact le plus notable sur le style d’un whisky ?",
+            options: ["La qualité de l’eau de réduction utilisée", "Le climat et l’environnement de vieillissement", "La hauteur des colonnes de distillation"],
+            correct: 1, // Climat et environnement
+            points: 3,
+            explanation: "Climat, hygrométrie et température jouent un rôle clé dans la maturation."
+        },
+        {
+            q: "Quelle famille aromatique est typique des whiskies écossais du Speyside ?",
+            options: ["Notes marines, minérales et salines", "Arômes fruités, floraux, avec des touches de miel", "Nez résineux et boisé dominant"],
+            correct: 1, // Fruité, floral, miel
+            points: 1,
+            explanation: "Le Speyside est célèbre pour ses malts doux, élégants, aux fruits mûrs et aux fleurs."
+        },
+        {
+            q: "Pourquoi le whisky français est-il souvent vu comme un laboratoire de styles ?",
+            options: ["Il est systématiquement vieilli en fûts de Cognac", "Il n’est soumis à aucune tradition stricte et explore de nombreux élevages", "Il est produit à partir de pommes et d’orge"],
+            correct: 1, // N'est soumis à aucune tradition stricte
+            points: 2,
+            explanation: "La créativité du whisky français s’exprime via des fûts variés et des techniques hybrides."
+        },
+        {
+            q: "Dans quel type d’alambic la majorité des single malts sont-ils distillés ?",
+            options: ["Alambic continu à plateau", "Pot still en cuivre", "Alambic à reflux fractionné"],
+            correct: 1, // Pot still en cuivre
+            points: 1,
+            explanation: "Les pot stills en cuivre sont la norme pour les single malts écossais."
+        },
+        {
+            q: "Quelle tendance mondiale influence le plus la diversification des whiskies ?",
+            options: ["L’harmonisation des recettes entre les grandes marques", "L’émergence de pays producteurs non traditionnels adoptant des styles innovants", "L’imposition de normes globales de vieillissement"],
+            correct: 1, // Émergence de pays producteurs non traditionnels
+            points: 3,
+            explanation: "Le développement de styles nordiques, asiatiques ou mexicains crée une nouvelle dynamique."
+        },
+        {
+            q: "Quelle est la particularité du Bourbon concernant ses fûts de vieillissement ?",
+            options: ["L’usage obligatoire de fûts ayant contenu du vin doux", "L’emploi exclusif de fûts neufs en chêne américain brûlés", "L’ajout d’éclats de bois pendant la fermentation"],
+            correct: 1, // Fûts neufs en chêne américain brûlés
+            points: 2,
+            explanation: "Le Bourbon doit être vieilli en fût neuf, fortement toasté – c’est la loi."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    const MAX_SCORE = 30; 
+    
+    // Variables de temps
+    let startTime;
+    let timeTakenSeconds = 0;
+    let performanceIndex = 0; 
+
+    // Éléments du DOM
+    const welcomeArea = document.getElementById("welcome-area");
+    const quizArea = document.getElementById("quiz-area");
+    const resultsArea = document.getElementById("results-area");
+
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const pointsDisplay = document.getElementById("q-points");
+    const feedbackArea = document.getElementById("feedback-area");
+    const nextBtn = document.getElementById("next-btn");
+    
+    // Éléments de progression et d'image
+    const questionProgressLive = document.getElementById("question-progress-live"); 
+    const chronoLiveDisplay = document.getElementById("chrono-live");
+    const sendResultsBtn = document.getElementById("send-results-btn");
+    const distilleryImage = document.getElementById("distillery-image-placeholder");
+
+    // Chargement de l'image de la distillerie au démarrage
+    distilleryImage.src = DISTILLERY_IMAGE_URL;
+    distilleryImage.onerror = function() {
+        // Fallback si l'image GitHub ne charge pas
+        this.src = "https://placehold.co/600x250/944d18/ffffff?text=Image+Distillerie+Whisky";
+        console.error("L'image de la distillerie n'a pas pu être chargée. Vérifiez l'URL brute (Raw) GitHub.");
+    };
+
+
+    /**
+     * Met à jour le chronomètre affiché.
+     */
+    function updateChrono() {
+        const currentTime = new Date();
+        timeTakenSeconds = Math.round((currentTime - startTime) / 1000); 
+        const minutes = String(Math.floor(timeTakenSeconds / 60)).padStart(2, '0');
+        const seconds = String(timeTakenSeconds % 60).padStart(2, '0');
+        chronoLiveDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
+    /**
+     * Lance le quiz en cachant la page d'accueil et DÉMARRE LE CHRONOMÈTRE.
+     */
+    function startQuiz() {
+        welcomeArea.style.display = "none";
+        quizArea.style.display = "block";
+        startTime = new Date(); // Démarrage du chronomètre
+        chronoInterval = setInterval(updateChrono, 1000); // Mise à jour toutes les secondes
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const currentData = quizData[currentQuestionIndex];
+        
+        questionText.textContent = currentData.q;
+        pointsDisplay.textContent = currentData.points + (currentData.points > 1 ? " Points" : " Point");
+        
+        // MISE À JOUR DU NUMÉRO DE QUESTION
+        questionProgressLive.textContent = `Question ${currentQuestionIndex + 1} / ${quizData.length}`;
+        
+        optionsContainer.innerHTML = "";
+        feedbackArea.style.display = "none";
+        nextBtn.style.display = "none";
+
+        currentData.options.forEach((opt, index) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.textContent = opt;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, btnElement) {
+        const currentData = quizData[currentQuestionIndex];
+        const buttons = optionsContainer.querySelectorAll(".option-btn");
+        
+        // Désactiver tous les boutons
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentData.correct) {
+            btnElement.classList.add("correct");
+            score += currentData.points;
+            feedbackArea.innerHTML = `<strong>Correct !</strong> <br>${currentData.explanation}`;
+            feedbackArea.style.borderLeft = "5px solid var(--correct)";
+        } else {
+            btnElement.classList.add("wrong");
+            buttons[currentData.correct].classList.add("correct");
+            feedbackArea.innerHTML = `<strong>Incorrect.</strong> La bonne réponse était : <em>${currentData.options[currentData.correct]}</em><br>${currentData.explanation}`;
+            feedbackArea.style.borderLeft = "5px solid var(--wrong)";
+        }
+
+        feedbackArea.style.display = "block";
+        nextBtn.style.display = "block";
+        
+        if (currentQuestionIndex === quizData.length - 1) {
+            nextBtn.textContent = "Voir les résultats";
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+
+    /**
+     * Affiche les résultats, calcule le temps et l'Index de Performance
+     */
+    function showResults() {
+        clearInterval(chronoInterval); // Arrêter le chronomètre
+        quizArea.style.display = "none";
+        resultsArea.style.display = "block";
+        
+        // On masque l'affichage des résultats finaux en attendant que le pseudo soit renseigné
+        document.getElementById("final-results-display").style.display = "none";
+        
+        // --- 1. Calcul du temps écoulé ---
+        const minutes = Math.floor(timeTakenSeconds / 60);
+        const seconds = timeTakenSeconds % 60;
+        const timeDisplay = `${minutes} min ${seconds} sec`;
+
+        // --- 2. Calcul du Score Pondéré (Index de Performance) ---
+        const rawPercentage = (score / MAX_SCORE) * 100;
+        
+        const TARGET_TIME_SECONDS = 120; // Temps cible: 2 minutes (120 secondes)
+        
+        let timeFactor = 1;
+        if (timeTakenSeconds > TARGET_TIME_SECONDS) {
+            // Malus : 0.1% de malus par seconde au-delà du temps cible
+            timeFactor = 1 - ((timeTakenSeconds - TARGET_TIME_SECONDS) * 0.001);
+            timeFactor = Math.max(0.5, timeFactor); // Limite du malus à 50%
+        }
+
+        // On stocke le résultat dans la variable globale pour l'envoi
+        performanceIndex = Math.round(rawPercentage * timeFactor);
+        performanceIndex = Math.max(0, Math.min(100, performanceIndex));
+
+
+        // --- 3. Mise à jour des valeurs de l'écran de résultats ---
+        document.getElementById("final-score-val").textContent = performanceIndex + "%"; 
+        
+        // Afficher le score brut (X/30)
+        document.getElementById("raw-score-display").textContent = `Score brut : ${score} / ${MAX_SCORE} Points`;
+
+        document.getElementById("time-taken-display").textContent = `Durée totale : ${timeDisplay}`;
+
+
+        const msg = document.getElementById("final-message");
+        if (performanceIndex === 100) {
+            msg.textContent = "Félicitations ! Vous êtes un Maître du Whisky avec une rapidité impressionnante ! 🥃";
+        } else if (performanceIndex >= 75) {
+            msg.textContent = "Index de Performance Excellent ! Votre connaissance et votre rapidité sont au top.";
+        } else if (performanceIndex >= 35) {
+            msg.textContent = "Index Correct. Vous avez de bonnes bases, mais tentez d'être plus rapide la prochaine fois !";
+        } else {
+            msg.textContent = "C'est un début. Accélérez le rythme !";
+        }
+        
+        // Initialiser le statut d'envoi
+        document.getElementById('send-status').textContent = "Statut : Prêt à envoyer.";
+    }
+    
+    // -------------------------------------------------------------------
+    // FONCTION POUR ENVOYER LES RÉSULTATS (Avec Exponential Backoff)
+    // -------------------------------------------------------------------
+    async function sendResult(pseudo) {
+        if (resultSent) return; 
+
+        document.getElementById('send-status').textContent = "Envoi des résultats en cours...";
+        
+        // Afficher d'abord les résultats calculés si ce n'est pas fait
+        document.getElementById("final-results-display").style.display = "block";
+
+        const dataToSend = {
+            pseudo: pseudo,
+            score: score,                  
+            time: timeTakenSeconds,        
+            performanceIndex: performanceIndex,
+            // AJOUT DU NOM DE LA FEUILLE CIBLE
+            targetSheet: TARGET_SHEET_NAME 
+        };
+        
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        const maxRetries = 3;
+        let attempt = 0;
+        let success = false;
+
+        while (attempt < maxRetries && !success) {
+            try {
+                // Tentative d'envoi à Google Apps Script
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Nécessaire pour les appels cross-origin simples
+                    cache: 'no-cache',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+
+                // Si le fetch réussit sans erreur réseau (même si la réponse est opaque), on considère que l'envoi a été tenté.
+                success = true;
+                resultSent = true;
+                document.getElementById('send-status').textContent = "✅ Résultat enregistré !";
+                sendResultsBtn.disabled = true; // Désactiver le bouton après l'envoi
+
+            } catch (error) {
+                attempt++;
+                if (attempt < maxRetries) {
+                    const waitTime = Math.pow(2, attempt) * 1000; 
+                    // Pas de log d'erreur ici pour l'exponential backoff (consigne)
+                    await delay(waitTime);
+                } else {
+                    console.error("Erreur lors de l'envoi des données à Google Sheets (après plusieurs tentatives):", error);
+                    document.getElementById('send-status').textContent = "❌ Échec de l'enregistrement. Vérifiez l'URL et les logs du script.";
+                    resultSent = false;
+                }
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------
+    // GESTION DE LA SAISIE DU PSEUDO (Afficher le bouton d'envoi)
+    // -------------------------------------------------------------------
+
+    function handlePseudoInput(pseudoValue) {
+        const pseudoTrimmed = pseudoValue.trim();
+        
+        // Afficher ou masquer le bouton d'envoi en fonction de la saisie
+        if (pseudoTrimmed.length > 0) {
+            sendResultsBtn.style.display = "block";
+        } else {
+            sendResultsBtn.style.display = "none";
+        }
+        
+        // Si le pseudo change APRÈS l'envoi initial, on permet de renvoyer (optionnel)
+        if (resultSent) {
+            resultSent = false;
+            document.getElementById('send-status').textContent = "Statut : Prêt à envoyer de nouveau.";
+            sendResultsBtn.disabled = false;
+        }
+    }
+    
+    // -------------------------------------------------------------------
+    // GESTION DU CLIC SUR LE BOUTON D'ENVOI
+    // -------------------------------------------------------------------
+    
+    function sendResultFromButton() {
+        const pseudoInput = document.getElementById('pseudo-input');
+        const pseudo = pseudoInput.value.trim();
+
+        if (pseudo.length > 0) {
+            sendResult(pseudo);
+        } else {
+            document.getElementById('send-status').textContent = "Veuillez entrer un pseudo valide.";
+            pseudoInput.focus();
+        }
+    }
+    
+    // Charger la première question au lancement du quiz
+    // loadQuestion(); // Retiré, car le quiz démarre via le bouton "Commencer"
+</script>
+
+</body>
+</html>
